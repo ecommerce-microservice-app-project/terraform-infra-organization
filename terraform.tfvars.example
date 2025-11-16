@@ -1,0 +1,39 @@
+# Azure Resource Group Configuration
+resource_group_name = "ecommerce-rg"
+location            = "East US 2"
+
+# AKS Cluster Configuration
+cluster_name = "ecommerce-aks"
+dns_prefix   = "ecommerce"
+
+# Default Node Pool Configuration (System pool - mínimo para cuenta estudiante)
+# IMPORTANTE: Este pool es obligatorio y mínimo necesario
+default_node_pool = {
+  name       = "system"
+  node_count = 1              # Mínimo para que funcione
+  vm_size    = "Standard_B2s"  # B2s es el más pequeño y económico
+}
+
+# Production Node Pool Configuration
+# Los pods de producción usarán este pool (via taints)
+prod_node_pool = {
+  vm_size    = "Standard_B2s"  # Mismo tamaño para ahorrar (cuenta estudiante)
+  node_count = 1               # Mínimo necesario
+}
+
+# Dev/Stage Node Pool Configuration
+# Los pods de dev/stage usarán este pool (via taints)
+# NOTA: Deshabilitado por defecto para cuentas estudiante (requiere 6 cores total)
+# Para habilitarlo, cambia enable_devstage_pool = true (y solicita aumento de quota)
+enable_devstage_pool = false
+devstage_node_pool = {
+  vm_size    = "Standard_B2s"  # Mismo tamaño para ahorrar
+  node_count = 1                # Mínimo necesario
+}
+
+# Common Tags
+common_tags = {
+  ManagedBy = "Terraform"
+  Project   = "Ecommerce-Microservices"
+  Environment = "Development"
+}
