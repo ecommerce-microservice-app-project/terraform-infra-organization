@@ -54,11 +54,3 @@ output "get_kubectl_config_command" {
   value       = "az aks get-credentials --resource-group ${module.resource_group.name} --name ${module.aks_cluster.name}"
 }
 
-terraform {
-  backend "azurerm" {
-    resource_group_name  = "terraform-state-rg"
-    storage_account_name = "tfstateaccount"
-    container_name       = "tfstate"
-    key                  = "ecommerce.terraform.tfstate"
-  }
-}
