@@ -6,7 +6,7 @@ Infrastructure as Code (IaC) for the e-commerce microservices project using Terr
 
 This repository contains Terraform configurations to deploy Kubernetes clusters across multiple cloud providers and environments:
 
-- **Azure Production** (AKS) - Production workloads on primary Azure student account
+- **Azure Development** (AKS) - Development workloads on primary Azure student account
 - **Azure Staging** (AKS) - Staging workloads on secondary Azure student account
 - **GCP Production** (GKE) - Production workloads on Google Cloud trial account
 
@@ -20,7 +20,7 @@ Each environment is **completely isolated** with its own:
 
 ```
 ┌─────────────────────┬─────────────────────┬─────────────────────┐
-│   Azure Prod        │   Azure Stage       │   GCP Prod          │
+│   Azure Dev         │   Azure Stage       │   GCP Prod          │
 │  (Account 1)        │  (Account 2)        │  (Trial Account)    │
 ├─────────────────────┼─────────────────────┼─────────────────────┤
 │ AKS Cluster         │ AKS Cluster         │ GKE Cluster         │
@@ -37,7 +37,7 @@ Each environment is **completely isolated** with its own:
 ```
 terraform-infra-organization/
 ├── environments/                   # Environment-specific configurations
-│   ├── azure-prod/                # Azure Production (Account 1)
+│   ├── azure-dev/                 # Azure Development (Account 1)
 │   │   ├── main.tf
 │   │   ├── variables.tf
 │   │   ├── outputs.tf
@@ -87,7 +87,7 @@ Each environment is deployed independently:
 
 ```bash
 # Example: Deploy Azure Production
-cd environments/azure-prod
+cd environments/azure-dev
 terraform init
 terraform plan
 terraform apply
@@ -95,24 +95,29 @@ terraform apply
 
 For detailed instructions, see the README in each environment directory:
 
-- **[Azure Production README](environments/azure-prod/README.md)** - Primary Azure student account
+- **[Azure Development README](environments/azure-dev/README.md)** - Primary Azure student account
 - **[Azure Staging README](environments/azure-stage/README.md)** - Secondary Azure student account
 - **[GCP Production README](environments/gcp-prod/README.md)** - Google Cloud trial account
 
 ## Environment Details
 
-### Azure Production (environments/azure-prod/)
+### Azure Development (environments/azure-dev/)
 
 - **Cloud**: Microsoft Azure (Primary student account)
 - **Region**: East US 2
 - **Cluster**: AKS with 2 node pools
 - **VMs**: Standard_B2s (2 vCPU, 2GB RAM)
-- **Backend**: Azure Blob Storage (existing account)
+- **Backend**: Azure Blob Storage (existing account, shared state: `ecommerce.terraform.tfstate`)
 - **Cost**: ~$30-40/month with student credits
 
-**Use Case**: Production workloads for the e-commerce application.
+**Use Case**: Development workloads for the e-commerce application.
 
-[→ Read full documentation](environments/azure-prod/README.md)
+**Special Notes**:
+- This environment manages the **existing infrastructure** previously managed by root configuration
+- Uses the same backend state file as root (`ecommerce.terraform.tfstate`)
+- No infrastructure changes when migrating from root to this environment
+
+[→ Read full documentation](environments/azure-dev/README.md)
 
 ### Azure Staging (environments/azure-stage/)
 
@@ -207,11 +212,11 @@ spec:
 
 ## Authentication & Credentials
 
-### Azure Production (Account 1)
+### Azure Development (Account 1)
 ```bash
 az login
 az account set --subscription "<primary-subscription-id>"
-cd environments/azure-prod
+cd environments/azure-dev
 terraform init && terraform apply
 ```
 
@@ -245,17 +250,20 @@ Each environment uses its own backend for state management:
 
 | Environment | Backend Type | Location | State File |
 |-------------|-------------|----------|------------|
-| Azure Prod | Azure Blob | Account 1 | azure-prod.terraform.tfstate |
+| Azure Dev | Azure Blob | Account 1 | ecommerce.terraform.tfstate (shared with root) |
 | Azure Stage | Azure Blob | Account 2 | azure-stage.terraform.tfstate |
 | GCP Prod | Google Cloud Storage | GCP Project | terraform/state |
 
-**Important**: Backends must be created manually before running `terraform init`. See each environment's README for instructions.
+**Important**:
+- Azure Dev uses the **same backend state** as the root configuration
+- Azure Stage and GCP Prod backends must be created manually before `terraform init`
+- See each environment's README for specific instructions
 
 ## Cost Estimation
 
 | Environment | Monthly Cost | Credit Source | Duration |
 |-------------|--------------|---------------|----------|
-| Azure Prod | ~$30-40 | Student credits | Depends on allocation |
+| Azure Dev | ~$30-40 | Student credits | Depends on allocation |
 | Azure Stage | ~$30-40 | Separate student credits | Depends on allocation |
 | GCP Prod | ~$48 | $300 trial credit | ~6 months |
 | **Total** | **~$110-130** | **Free with credits** | **Varies** |
@@ -276,7 +284,7 @@ After deploying all environments, you'll have multiple kubeconfig contexts:
 kubectl config get-contexts
 
 # Switch between clusters
-kubectl config use-context az-k8s-prod-cluster       # Azure Production
+kubectl config use-context az-k8s-cluster            # Azure Development
 kubectl config use-context az-k8s-stage-cluster      # Azure Staging
 kubectl config use-context gke_project-id_region_gke-prod-cluster  # GCP Production
 
@@ -366,23 +374,28 @@ For environment-specific troubleshooting, see each environment's README.
 
 ## Migration from Root Configuration
 
-If you have an existing deployment using the root configuration files, see the migration guide:
+If you have an existing deployment using the root configuration files:
 
 1. The root files (`main.tf`, `variables.tf`, `outputs.tf`, `providers.tf`) are **deprecated**
-2. All infrastructure is now managed through `environments/` directories
-3. Each environment is independent and can be deployed separately
-4. State files are separate per environment
+2. Infrastructure is now managed through `environments/azure-dev/`
+3. **The azure-dev environment uses the SAME state file** as root (`ecommerce.terraform.tfstate`)
+4. **No changes to existing infrastructure** - it's just a reorganization
 
-**To migrate**:
-1. Export existing state: `terraform state pull > old-state.json`
-2. Deploy new environment: `cd environments/azure-prod && terraform init && terraform plan`
-3. Import existing resources if needed
-4. Destroy old root infrastructure once verified
+**Migration steps**:
+```bash
+cd environments/azure-dev
+terraform init       # Connects to existing backend
+terraform plan       # Should show: No changes
+```
+
+If `terraform plan` shows 0 changes, the migration is complete! You can now:
+- Manage infrastructure from `environments/azure-dev/` instead of root
+- Optionally delete root configuration files (or keep them as backup)
 
 ## Support & Documentation
 
 - **General Questions**: See this README
-- **Azure Production**: [environments/azure-prod/README.md](environments/azure-prod/README.md)
+- **Azure Development**: [environments/azure-dev/README.md](environments/azure-dev/README.md)
 - **Azure Staging**: [environments/azure-stage/README.md](environments/azure-stage/README.md)
 - **GCP Production**: [environments/gcp-prod/README.md](environments/gcp-prod/README.md)
 - **Modules**: See individual module READMEs in `modules/` directory

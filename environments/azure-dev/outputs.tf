@@ -1,6 +1,6 @@
 ################################################################################
-# AZURE OUTPUTS
-# Outputs for Azure AKS infrastructure
+# AZURE DEVELOPMENT OUTPUTS
+# Outputs for Azure AKS Development infrastructure
 ################################################################################
 
 # Azure Resource Group Outputs
@@ -43,14 +43,8 @@ output "azure_prod_node_pool_id" {
   value       = module.azure_prod_node_pool.id
 }
 
-output "azure_devstage_node_pool_id" {
-  description = "ID of the Azure dev/stage node pool"
-  value       = var.enable_devstage_pool ? module.azure_devstage_node_pool[0].id : "Not enabled"
-}
-
 # Convenience output for kubectl configuration
 output "get_kubectl_config_command" {
   description = "Command to get kubectl configuration"
   value       = "az aks get-credentials --resource-group ${module.resource_group.name} --name ${module.aks_cluster.name}"
 }
-

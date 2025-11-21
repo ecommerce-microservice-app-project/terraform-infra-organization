@@ -1,6 +1,6 @@
 ################################################################################
-# AZURE PRODUCTION ENVIRONMENT
-# AKS Cluster for Production workloads
+# AZURE DEVELOPMENT ENVIRONMENT
+# AKS Cluster for Development workloads
 ################################################################################
 
 terraform {
@@ -8,7 +8,7 @@ terraform {
     resource_group_name  = "terraform-state-rg"
     storage_account_name = "storagetfstateaccount"
     container_name       = "tfstate"
-    key                  = "azure-prod.terraform.tfstate"
+    key                  = "ecommerce.terraform.tfstate"
   }
 }
 
@@ -35,14 +35,14 @@ module "aks_cluster" {
   tags = merge(
     var.common_tags,
     {
-      Environment = "production"
-      Purpose     = "prod-workloads"
+      Environment = "multi"
+      Purpose     = "dev-stage-prod"
     }
   )
 }
 
 # Azure AKS Production Node Pool - Dedicated nodes for production workloads
-module "prod_node_pool" {
+module "azure_prod_node_pool" {
   source = "../../modules/aks-node-pool"
 
   name                  = "prod"

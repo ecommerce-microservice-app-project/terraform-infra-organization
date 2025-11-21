@@ -1,6 +1,6 @@
 ################################################################################
-# AZURE VARIABLES
-# Variables for Azure AKS infrastructure
+# AZURE DEVELOPMENT VARIABLES
+# Variables for Azure AKS Development environment
 ################################################################################
 
 variable "resource_group_name" {
@@ -37,7 +37,7 @@ variable "default_node_pool" {
   default = {
     name       = "system"
     node_count = 1
-    vm_size    = "Standard_B2s"  # Optimizado para cuenta estudiante
+    vm_size    = "Standard_B2s"
   }
 }
 
@@ -48,27 +48,9 @@ variable "prod_node_pool" {
     node_count = number
   })
   default = {
-    vm_size    = "Standard_B2s"  # Optimizado para cuenta estudiante
+    vm_size    = "Standard_B2s"
     node_count = 1
   }
-}
-
-variable "devstage_node_pool" {
-  description = "Configuration for the dev/stage node pool"
-  type = object({
-    vm_size    = string
-    node_count = number
-  })
-  default = {
-    vm_size    = "Standard_B2s"  # Optimizado para cuenta estudiante
-    node_count = 1
-  }
-}
-
-variable "enable_devstage_pool" {
-  description = "Enable dev/stage node pool. Set to false for student accounts with limited quota"
-  type        = bool
-  default     = false  # Deshabilitado por defecto para cuentas estudiante
 }
 
 variable "common_tags" {
