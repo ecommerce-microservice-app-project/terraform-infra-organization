@@ -1,0 +1,38 @@
+# Example terraform.tfvars for Azure Staging Environment
+# Copy this file to terraform.tfvars and adjust values as needed
+# This environment uses a SECOND Azure student account
+
+# Resource Group Configuration
+resource_group_name = "az-k8s-stage-rg"
+location            = "East US 2"
+
+# AKS Cluster Configuration
+cluster_name = "az-k8s-stage-cluster"
+dns_prefix   = "aksstage"
+
+# Default Node Pool (System Pool)
+default_node_pool = {
+  name       = "system"
+  node_count = 1
+  vm_size    = "Standard_B2s"
+}
+
+# Production Node Pool (same specs as production for consistency)
+prod_node_pool = {
+  vm_size    = "Standard_B2s"
+  node_count = 1
+}
+
+# Common Tags
+common_tags = {
+  ManagedBy   = "Terraform"
+  Project     = "Ecommerce-K8s"
+  Environment = "staging"
+  Team        = "DevOps"
+}
+
+# If using Service Principal authentication, uncomment and fill these:
+# subscription_id = "your-stage-subscription-id"
+# client_id       = "your-service-principal-client-id"
+# client_secret   = "your-service-principal-secret"
+# tenant_id       = "your-azure-tenant-id"

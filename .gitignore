@@ -48,4 +48,19 @@ override.tf.json
 terraform.rc
 
 .terraform.lock.hcl
+
+# GCP Credentials
+gcp-terraform-key.json
+**/gcp-terraform-key.json
+
+# Azure Credentials (if using service principal files)
+azure-credentials.json
+**/azure-credentials.json
+
+# Any credential or secret files
+*credentials*.json
+*secret*.json
+*.pem
+*.key
+
 # End of https://www.toptal.com/developers/gitignore/api/terraform

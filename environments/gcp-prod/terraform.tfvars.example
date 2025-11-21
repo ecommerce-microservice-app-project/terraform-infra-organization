@@ -1,0 +1,68 @@
+# Example terraform.tfvars for GCP Production Environment
+# Copy this file to terraform.tfvars and adjust values as needed
+
+# GCP Project Configuration
+project_id = "your-gcp-project-id"  # REQUIRED: Replace with your GCP project ID
+
+# Credentials
+credentials_file = "../../gcp-terraform-key.json"  # Path to your service account key
+
+# GKE Cluster Configuration
+cluster_name = "gke-prod-cluster"
+location     = "us-central1"  # or "us-central1-a" for zonal cluster
+region       = "us-central1"
+
+# Network Configuration
+# Using default VPC network for simplicity with trial account
+# For production, consider creating custom VPC with secondary ranges
+network            = "default"
+subnetwork         = "default"
+pods_range_name    = "pods"      # May not exist in default network
+services_range_name = "services" # May not exist in default network
+
+# Default Node Pool (System Pool)
+default_node_pool = {
+  node_count   = 1
+  machine_type = "e2-medium"  # 2 vCPU, 4GB RAM (~$24/month)
+  disk_size_gb = 50
+}
+
+# Production Node Pool
+prod_node_pool = {
+  machine_type = "e2-medium"  # 2 vCPU, 4GB RAM
+  node_count   = 1
+  disk_size_gb = 50
+}
+
+# Service Account (optional)
+# service_account = "your-custom-service-account@your-project.iam.gserviceaccount.com"
+
+# Maintenance Window
+maintenance_start_time = "03:00"  # 3 AM
+
+# Common Tags (called "labels" in GCP)
+common_tags = {
+  managed_by  = "terraform"
+  project     = "ecommerce-k8s"
+  environment = "production"
+  team        = "devops"
+}
+
+################################################################################
+# NOTES FOR GCP TRIAL ACCOUNT
+################################################################################
+# 1. GCP Free Trial provides $300 credit valid for 90 days
+# 2. e2-medium nodes cost approximately $24/month each
+# 3. With 2 nodes (system + prod), estimated cost: ~$48/month
+# 4. Total cluster lifetime with free credits: ~6 months
+#
+# To reduce costs:
+# - Use e2-small (2 vCPU, 2GB RAM) for ~$13/month per node
+# - Use preemptible nodes (up to 80% cheaper, but can be terminated)
+# - Use zonal cluster instead of regional (location = "us-central1-a")
+#
+# Trial account limitations:
+# - Maximum 8 vCPUs per region
+# - Cannot create more than a certain number of clusters
+# - Some regions may not be available
+################################################################################

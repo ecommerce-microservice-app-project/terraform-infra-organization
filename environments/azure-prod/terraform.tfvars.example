@@ -1,0 +1,31 @@
+# Example terraform.tfvars for Azure Production Environment
+# Copy this file to terraform.tfvars and adjust values as needed
+
+# Resource Group Configuration
+resource_group_name = "az-k8s-prod-rg"
+location            = "East US 2"
+
+# AKS Cluster Configuration
+cluster_name = "az-k8s-prod-cluster"
+dns_prefix   = "aksprod"
+
+# Default Node Pool (System Pool)
+default_node_pool = {
+  name       = "system"
+  node_count = 1
+  vm_size    = "Standard_B2s"
+}
+
+# Production Node Pool
+prod_node_pool = {
+  vm_size    = "Standard_B2s"
+  node_count = 1
+}
+
+# Common Tags
+common_tags = {
+  ManagedBy   = "Terraform"
+  Project     = "Ecommerce-K8s"
+  Environment = "production"
+  Team        = "DevOps"
+}
