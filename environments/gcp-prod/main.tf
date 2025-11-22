@@ -5,7 +5,7 @@
 
 terraform {
   backend "gcs" {
-    bucket = "terraform-state-gcp-prod"
+    bucket = "terraform-state-tfg-prod-2025"
     prefix = "terraform/state"
     # This bucket needs to be created manually in your GCP project
     # You can also use Azure Storage backend if preferred
